@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElevateCV - AI-Powered Career Development Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-brand">
+                <div class="brand-logo">ECV</div>
+                ElevateCV
+            </a>
+            <ul class="navbar-nav" id="navbarNav">
+                <li class="nav-item"><a href="/" class="nav-link active"><i class="fas fa-home"></i> Home</a></li>
+                <li class="nav-item"><a href="/resume-analyzer.html" class="nav-link"><i class="fas fa-file-alt"></i> Resume Analyzer</a></li>
+                <li class="nav-item"><a href="/cover-letter.html" class="nav-link"><i class="fas fa-envelope"></i> Cover Letters</a></li>
+                <li class="nav-item"><a href="/interview-prep.html" class="nav-link"><i class="fas fa-microphone"></i> Interview Prep</a></li>
+            </ul>
+            <div id="auth-links" class="hidden md:flex items-center space-x-4">
+                <!-- Auth links will be populated by JS -->
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title fade-in">Build Your Future with ElevateCV</h1>
+            <p class="page-subtitle fade-in">AI-powered tools to optimize your resume, write perfect cover letters, and ace your interviews.</p>
+            <a href="/register.html" class="btn btn-secondary btn-lg mt-8">Get Started for Free</a>
+        </div>
+    </header>
+
+    <div class="container py-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature Cards -->
+            <div class="feature-card card" onclick="window.location.href='/resume-analyzer.html'">
+                <div class="card-body text-center">
+                    <div class="feature-icon bg-blue-100 text-blue-600"><i class="fas fa-file-alt"></i></div>
+                    <h3 class="card-title text-xl mb-3">Resume Analyzer</h3>
+                    <p class="card-text mb-4">Get instant AI-powered feedback and ATS optimization tips.</p>
+                </div>
+            </div>
+            <div class="feature-card card" onclick="window.location.href='/cover-letter.html'">
+                <div class="card-body text-center">
+                    <div class="feature-icon bg-teal-100 text-teal-600"><i class="fas fa-envelope"></i></div>
+                    <h3 class="card-title text-xl mb-3">Cover Letter Generator</h3>
+                    <p class="card-text mb-4">Create tailored, professional cover letters in minutes.</p>
+                </div>
+            </div>
+            <div class="feature-card card" onclick="window.location.href='/interview-prep.html'">
+                <div class="card-body text-center">
+                    <div class="feature-icon bg-purple-100 text-purple-600"><i class="fas fa-microphone"></i></div>
+                    <h3 class="card-title text-xl mb-3">Interview Prep</h3>
+                    <p class="card-text mb-4">Practice with mock interviews and get performance analytics.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2024 ElevateCV. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('elevateCVToken');
+            const authLinks = document.getElementById('auth-links');
+            if (token) {
+                authLinks.innerHTML = `
+                    <a href="/career-dashboard.html" class="text-white font-medium px-4 py-2 rounded-md hover:bg-white/10 transition">Dashboard</a>
+                    <button onclick="logout()" class="text-white font-medium px-4 py-2 rounded-md hover:bg-white/10 transition">Log Out</button>
+                `;
+            } else {
+                authLinks.innerHTML = `
+                    <a href="/login.html" class="text-white font-medium px-4 py-2 rounded-md hover:bg-white/10 transition">Log In</a>
+                    <a href="/register.html" class="btn btn-secondary">Sign Up</a>
+                `;
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('elevateCVToken');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
