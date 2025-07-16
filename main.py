@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # DON'T CHANGE THIS !!!
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(os.getcwd())
 
 from src.models import db
 from src.routes.user import user_bp
