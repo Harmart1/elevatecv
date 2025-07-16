@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+        .card-shadow { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-6">
+        <div class="container mx-auto px-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">
+                        <i class="fas fa-cog mr-3"></i>Admin Dashboard
+                    </h1>
+                    <p class="text-xl opacity-90">Platform Management & Analytics</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <div class="text-sm opacity-75">Server Status</div>
+                        <div class="text-lg font-bold text-green-300">
+                            <i class="fas fa-circle mr-1"></i>Online
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-white border-b border-gray-200">
+        <div class="container mx-auto px-6">
+            <nav class="flex space-x-8">
+                <button onclick="showTab('overview')" class="tab-btn py-4 px-2 border-b-2 border-red-500 text-red-600 font-medium">
+                    <i class="fas fa-chart-pie mr-2"></i>Overview
+                </button>
+                <button onclick="showTab('users')" class="tab-btn py-4 px-2 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-users mr-2"></i>Users
+                </button>
+                <!-- Add other tabs back as they are implemented -->
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- Overview Tab -->
+        <div id="overview-tab" class="tab-content">
+            <!-- Key Metrics -->
+            <div id="metrics-grid" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <!-- Metrics will be loaded here -->
+                <div class="text-center p-6 bg-white rounded-lg"><i class="fas fa-spinner fa-spin text-2xl"></i></div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white rounded-lg card-shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">User Growth</h3>
+                    <div style="height: 300px;"><canvas id="userGrowthChart"></canvas></div>
+                </div>
+                <div class="bg-white rounded-lg card-shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Feature Usage</h3>
+                    <div style="height: 300px;"><canvas id="featureUsageChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="users-tab" class="tab-content hidden">
+            <div class="bg-white rounded-lg card-shadow">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800">User Management</h3>
+                        <div class="flex space-x-3">
+                            <input type="text" id="userSearch" placeholder="Search by name or email..." class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                            <select id="userStatusFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                            <button onclick="applyUserFilters()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
+                                <i class="fas fa-search mr-2"></i>Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="usersTableContainer" class="overflow-x-auto">
+                    <!-- Table will be loaded here -->
+                </div>
+                <div id="usersPagination" class="px-6 py-3 border-t border-gray-200">
+                    <!-- Pagination will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let userGrowthChart, featureUsageChart;
+        let currentUserPage = 1;
+
+        // --- Authentication Check ---
+        const token = localStorage.getItem('careerCraftToken');
+        if (!token) {
+            window.location.href = '/login.html'; // Redirect to a login page if not authenticated
+        }
+
+        const apiHeaders = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', function() {
+            showTab('overview');
+            loadDashboardMetrics();
+            initializeCharts();
+            loadUsers();
+        });
+
+        // --- Tab Management ---
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-red-500', 'text-red-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            const activeBtn = document.querySelector(`button[onclick="showTab('${tabName}')"]`);
+            activeBtn.classList.remove('border-transparent', 'text-gray-500');
+            activeBtn.classList.add('border-red-500', 'text-red-600');
+        }
+
+        // --- API Calls & Data Handling ---
+        async function apiFetch(url) {
+            try {
+                const response = await fetch(url, { headers: apiHeaders });
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        alert('Session expired or unauthorized. Please log in again.');
+                        localStorage.removeItem('careerCraftToken');
+                        window.location.href = '/login.html';
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('API Fetch Error:', error);
+                alert('An error occurred while fetching data.');
+                return null;
+            }
+        }
+
+        async function loadDashboardMetrics() {
+            const data = await apiFetch('/api/admin/dashboard');
+            if (data && data.success) {
+                updateMetrics(data.metrics);
+                updateFeatureUsageChart(data.metrics);
+            }
+        }
+
+        async function loadUsers(page = 1) {
+            currentUserPage = page;
+            const searchTerm = document.getElementById('userSearch').value;
+            const statusFilter = document.getElementById('userStatusFilter').value;
+            const url = `/api/admin/users?page=${page}&search=${searchTerm}&status=${statusFilter}`;
+            
+            const usersTableContainer = document.getElementById('usersTableContainer');
+            usersTableContainer.innerHTML = '<div class="text-center p-6"><i class="fas fa-spinner fa-spin text-2xl"></i></div>';
+
+            const data = await apiFetch(url);
+            if (data && data.success) {
+                displayUsers(data.users);
+                setupPagination(data.pagination);
+            } else {
+                usersTableContainer.innerHTML = '<div class="text-center p-6 text-red-500">Failed to load users.</div>';
+            }
+        }
+
+        function applyUserFilters() {
+            loadUsers(1); // Reset to page 1 on new search/filter
+        }
+
+        // --- UI Updates ---
+        function updateMetrics(metrics) {
+            const metricsGrid = document.getElementById('metrics-grid');
+            metricsGrid.innerHTML = `
+                ${createMetricCard('Total Users', metrics.total_users, `+${metrics.user_growth_percentage}% this month`, 'fa-users', 'blue')}
+                ${createMetricCard('Resumes Generated', metrics.total_resumes, `+${metrics.resume_growth_percentage}% this month`, 'fa-file-alt', 'green')}
+                ${createMetricCard('API Calls Today', metrics.api_calls_today, `+${metrics.api_growth_percentage}% vs yesterday`, 'fa-code', 'purple')}
+                ${createMetricCard('Server Uptime', `${metrics.server_uptime}%`, 'Last 30 days', 'fa-server', 'orange')}
+            `;
+        }
+
+        function createMetricCard(title, value, growth, icon, color) {
+            return `
+                <div class="bg-white rounded-lg card-shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">${title}</p>
+                            <p class="text-2xl font-bold text-gray-900">${value.toLocaleString()}</p>
+                            <p class="text-sm text-green-600">${growth}</p>
+                        </div>
+                        <div class="bg-${color}-100 p-3 rounded-full">
+                            <i class="fas ${icon} text-${color}-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        
+        function displayUsers(users) {
+            const container = document.getElementById('usersTableContainer');
+            if(users.length === 0){
+                container.innerHTML = '<div class="text-center p-6 text-gray-500">No users found.</div>';
+                return;
+            }
+
+            const table = `
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Resumes</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Login</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        ${users.map(user => createUserRow(user)).join('')}
+                    </tbody>
+                </table>
+            `;
+            container.innerHTML = table;
+        }
+
+        function createUserRow(user) {
+            const statusColors = {
+                active: 'bg-green-100 text-green-800',
+                inactive: 'bg-gray-100 text-gray-800',
+                suspended: 'bg-red-100 text-red-800'
+            };
+            const lastLogin = user.last_login ? new Date(user.last_login).toLocaleDateString() : 'Never';
+
+            return `
+                <tr>
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">${user.username}</div>
+                        <div class="text-sm text-gray-500">${user.email}</div>
+                    </td>
+                    <td class="px-6 py-4"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[user.status] || statusColors.inactive}">${user.status}</span></td>
+                    <td class="px-6 py-4 text-sm text-gray-900 capitalize">${user.plan}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${user.resume_count}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${lastLogin}</td>
+                    <td class="px-6 py-4 text-sm font-medium">
+                        ${user.status !== 'suspended' ? `<button onclick="updateUserStatus(${user.id}, 'suspend')" class="text-red-600 hover:text-red-900">Suspend</button>` : ''}
+                        ${user.status !== 'active' ? `<button onclick="updateUserStatus(${user.id}, 'activate')" class="text-green-600 hover:text-green-900 ml-3">Activate</button>` : ''}
+                    </td>
+                </tr>`;
+        }
+
+        function setupPagination(pagination) {
+            const container = document.getElementById('usersPagination');
+            if (pagination.total === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const from = (pagination.page - 1) * 20 + 1;
+            const to = Math.min(pagination.page * 20, pagination.total);
+
+            container.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700">Showing <span>${from}-${to}</span> of <span>${pagination.total}</span> users</div>
+                    <div class="flex space-x-2">
+                        <button onclick="loadUsers(${pagination.page - 1})" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" ${pagination.page === 1 ? 'disabled' : ''}>Previous</button>
+                        <button onclick="loadUsers(${pagination.page + 1})" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" ${pagination.page === pagination.pages ? 'disabled' : ''}>Next</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Actions ---
+        async function updateUserStatus(userId, action) {
+            if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+
+            const response = await fetch(`/api/admin/users/${userId}/${action}`, {
+                method: 'POST',
+                headers: apiHeaders
+            });
+
+            const data = await response.json();
+            if (data && data.success) {
+                alert(data.message);
+                loadUsers(currentUserPage);
+            } else {
+                alert(`Failed to ${action} user: ${data.error || 'Unknown error'}`);
+            }
+        }
+
+        // --- Charting ---
+        function initializeCharts() {
+            const userCtx = document.getElementById('userGrowthChart').getContext('2d');
+            userGrowthChart = new Chart(userCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{ label: 'New Users', data: [120, 190, 300, 500, 200, 300], borderColor: 'rgb(220, 38, 38)', tension: 0.4 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const featureCtx = document.getElementById('featureUsageChart').getContext('2d');
+            featureUsageChart = new Chart(featureCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Resume Analyzer', 'Cover Letters', 'Interview Prep'],
+                    datasets: [{ data: [2500, 1200, 800], backgroundColor: ['#3B82F6', '#10B981', '#F59E0B'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function updateFeatureUsageChart(metrics) {
+            if (featureUsageChart) {
+                featureUsageChart.data.datasets[0].data = [
+                    metrics.total_resumes, 
+                    metrics.total_cover_letters, 
+                    metrics.total_interviews
+                ];
+                featureUsageChart.update();
+            }
+        }
+    </script>
+</body>
+</html>
