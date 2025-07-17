@@ -1,28 +1,36 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+# Use a specific, stable version of the Python slim image
+FROM python:3.9.18-slim
 
-# Set the working directory in the container
+# Set environment variables for best practices in production
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# --- Install System Build Dependencies ---
+# This is the most critical step. It installs the 'gcc' compiler.
+# Combining them in one RUN command is more efficient and avoids caching issues.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the application's working directory
 WORKDIR /app
 
-# Copy the requirements file into the container at /app
-# This is done first to leverage Docker's layer caching.
-# The dependencies will only be re-installed if requirements.txt changes.
+# --- Install Python Dependencies ---
+# Copy the requirements file first to leverage Docker's layer caching.
 COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
+# Install dependencies. Using --no-cache-dir is good practice in containers.
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your application code into the container at /app
+# --- Copy Application Code ---
+# Copy the rest of the application source code into the container
 COPY . .
 
-# Make port 5000 available to the world outside this container
+# --- Expose the Port ---
+# Inform Docker that the container listens on port 5000 (for Gunicorn)
 EXPOSE 5000
 
-# Define the command to run your app
-# Gunicorn is a production-ready web server, better than Flask's built-in server.
-# We will use it for the final command, but provide the debug command as well.
-# For debugging:
-# CMD ["python", "main.py"]
-
-# For production (after installing gunicorn: pip install gunicorn):
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
+# --- Define the Production Start Command ---
+# Use Gunicorn as the production WSGI server. This is more robust than Flask's dev server.
+# 'main:app' points to the 'app' object created by the factory in your main.py.
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "main:app"]
