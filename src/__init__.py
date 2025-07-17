@@ -34,7 +34,7 @@ def create_app():
 
     # --- Initialize Extensions ---
     CORS(app)
-    db.init_app(app)
+    db.init_app(app, bind_key='__all__')
 
     # --- Register Blueprints ---
     from .routes.auth import auth_bp
@@ -53,7 +53,7 @@ def create_app():
         # Import models here to avoid circular imports
         from .models.user import User
 
-        db.create_all()
+        db.create_all(bind_key='__all__', app=app)
 
         # Create a default admin user if one doesn't exist
         if not User.query.filter_by(username='admin').first():

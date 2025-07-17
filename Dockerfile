@@ -20,7 +20,8 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install dependencies. Using --no-cache-dir is good practice in containers.
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && \
+    python -m spacy download en_core_web_sm
 
 # --- Copy Application Code ---
 # Copy the rest of the application source code into the container
