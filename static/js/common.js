@@ -1,5 +1,17 @@
 // This file contains common JavaScript functions used across the site.
 
+// --- Mobile Menu Toggle ---
+document.addEventListener('DOMContentLoaded', () => {
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navbarNav = document.getElementById('navbarNav');
+
+    if (mobileMenuBtn && navbarNav) {
+        mobileMenuBtn.addEventListener('click', () => {
+            navbarNav.classList.toggle('active');
+        });
+    }
+});
+
 // --- Reusable Login Handler ---
 function handleLoginForm(formId, redirectUrl, adminOnly = false) {
     const form = document.getElementById(formId);
