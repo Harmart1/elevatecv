@@ -17,19 +17,22 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# --- Download the SpaCy Language Model ---
-# This command downloads the model so it's available to your application
+# Download the SpaCy Language Model
 RUN python -m spacy download en_core_web_sm
 
 # Copy your application code
 COPY . .
 
-# --- Make entrypoint script executable and set it as the command ---
+# --- Add and Set Permissions for the Entrypoint Script ---
+# Copy the script into the container
 COPY entrypoint.sh /app/entrypoint.sh
+# Make it executable
 RUN chmod +x /app/entrypoint.sh
 
 # --- Expose the Port ---
 EXPOSE 5000
 
-# --- Define the Production Start Command ---
-CMD ["/app/entrypoint.sh"]
+# --- Set the Entrypoint ---
+# This tells Docker to run our script when the container starts.
+# The script will handle migrations and then start Gunicorn.
+ENTRYPOINT ["/app/entrypoint.sh"]
