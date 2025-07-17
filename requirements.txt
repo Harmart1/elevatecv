@@ -31,3 +31,4 @@ spacy-loggers==1.0.5
 SQLAlchemy==2.0.31
 Werkzeug==3.0.3
 wrapt==1.16.0
+Flask-Migrate==4.0.7
