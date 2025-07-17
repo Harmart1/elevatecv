@@ -4,6 +4,7 @@ from src import create_app
 app = create_app()
 
 if __name__ == '__main__':
-    # Run the app
-    # The host='0.0.0.0' makes it accessible on your local network
+    # This block is for running the app in development (debug) mode.
+    # In production, a WSGI server like Gunicorn will be used,
+    # as configured in the Dockerfile.
     app.run(host='0.0.0.0', port=5000, debug=True)
