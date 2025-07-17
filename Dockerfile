@@ -24,11 +24,12 @@ RUN python -m spacy download en_core_web_sm
 # Copy your application code
 COPY . .
 
+# --- Make entrypoint script executable and set it as the command ---
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 # --- Expose the Port ---
 EXPOSE 5000
 
 # --- Define the Production Start Command ---
-# We will use a build script to handle database migrations
-# The CMD will be set in the render.yaml or Render UI
-# For now, Gunicorn is the final command.
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "main:app"]
+CMD ["/app/entrypoint.sh"]
