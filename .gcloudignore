@@ -1,0 +1,22 @@
+# This file is used to exclude files from the deployment to Google Cloud.
+#
+# The following patterns are excluded by default:
+#
+#   .*
+#   !/.gcloudignore
+#   !/app.yaml
+#   !/main.py
+#   !/requirements.txt
+#
+# For more information, see:
+#
+#   https://cloud.google.com/sdk/gcloud/reference/topic/gcloudignore
+
+.git
+.gitignore
+.dockerignore
+Dockerfile
+README.md
+tests/
+*.pyc
+__pycache__/
