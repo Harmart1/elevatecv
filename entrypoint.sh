@@ -4,7 +4,7 @@
 set -e
 
 # Tell Flask where to find the application factory.
-export FLASK_APP=main:app
+export FLASK_APP=main
 
 # Run database migrations.
 echo "Running database migrations..."
