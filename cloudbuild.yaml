@@ -22,6 +22,6 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'DATABASE_URL=projects/$PROJECT_ID/instances/resume-analyzer-db'
+      - 'DATABASE_URL=postgresql+pg8000://<your-db-user>:<your-db-password>@/<your-db-name>?unix_sock=/cloudsql/<your-project-id>:<your-region>:<your-instance-name>/.s.PGSQL.5432'
 images:
   - 'gcr.io/$PROJECT_ID/resume-analyzer'
