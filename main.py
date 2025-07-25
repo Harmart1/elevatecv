@@ -1,8 +1,16 @@
 import os
 from src import create_app
+from flask import jsonify
 
 # Create the Flask app instance using the factory
 app = create_app()
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    """
+    Health check endpoint to verify that the service is running.
+    """
+    return jsonify({"status": "healthy"}), 200
 
 if __name__ == '__main__':
     # This block is for running the app in development mode.

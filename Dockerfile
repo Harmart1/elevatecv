@@ -1,5 +1,5 @@
 # Use a specific, stable version of the Python slim image
-FROM python:3.9.18-slim
+FROM python:3.9.18-slim as builder
 
 # Set environment variables for best practices
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -15,7 +15,24 @@ WORKDIR /app
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+
+# --- Final Stage ---
+FROM python:3.9.18-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the wheels from the builder stage
+COPY --from=builder /app/wheels /wheels
+
+# Install the wheels
+RUN pip install --no-cache /wheels/*
 
 # Download the SpaCy Language Model
 RUN python -m spacy download en_core_web_sm
