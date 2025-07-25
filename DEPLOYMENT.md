@@ -1,64 +1,34 @@
-# Deploying to Google Cloud Run
+# Deploying to Google Cloud Run with GitHub Actions
 
-This guide provides instructions for deploying the ElevateCV application to Google Cloud Run.
+This guide provides instructions for deploying the ElevateCV application to Google Cloud Run using GitHub Actions for continuous deployment.
 
 ## Prerequisites
 
-1.  **Google Cloud SDK:** Make sure you have the [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) installed and configured on your local machine.
-2.  **Google Cloud Project:** Create a new project in the [Google Cloud Console](https://console.cloud.google.com/).
-3.  **Enable APIs:** Enable the Cloud Build, Cloud Run, and Artifact Registry APIs for your project.
-4.  **Docker:** Make sure you have [Docker](https://docs.docker.com/get-docker/) installed on your local machine.
+1.  **Google Cloud Project:** Create a new project in the [Google Cloud Console](https://console.cloud.google.com/).
+2.  **Enable APIs:** Enable the Cloud Build, Cloud Run, and Artifact Registry APIs for your project.
+3.  **Create a Service Account:** Create a service account in your Google Cloud project and grant it the following roles:
+    *   Cloud Build Editor
+    *   Cloud Run Admin
+    *   Storage Admin
+    *   Service Account User
+4.  **Create a Service Account Key:** Create a JSON key for the service account and download it to your local machine.
+5.  **GitHub Repository:** Create a new GitHub repository and push your application code to it.
 
 ## Deployment Steps
 
-1.  **Authenticate with Google Cloud:**
+1.  **Add Secrets to GitHub:**
 
-    ```bash
-    gcloud auth login
-    gcloud config set project [YOUR_PROJECT_ID]
-    ```
+    In your GitHub repository, go to **Settings > Secrets > Actions** and add the following secrets:
 
-2.  **Create an Artifact Registry Repository:**
+    *   `GCP_PROJECT_ID`: Your Google Cloud project ID.
+    *   `GCP_SA_KEY`: The contents of the JSON key file that you downloaded in the previous step.
+    *   `GOOGLE_API_KEY`: Your Google AI API key.
+    *   `SECRET_KEY`: A strong, randomly generated secret key.
 
-    ```bash
-    gcloud artifacts repositories create elevatecv-repo --repository-format=docker --location=us-central1
-    ```
+2.  **Push to `main`:**
 
-3.  **Build the Docker Image:**
-
-    Build the Docker image using Cloud Build. This will build the image and push it to your Artifact Registry repository.
-
-    ```bash
-    gcloud builds submit --tag us-central1-docker.pkg.dev/[YOUR_PROJECT_ID]/elevatecv-repo/elevatecv
-    ```
-
-4.  **Deploy to Cloud Run:**
-
-    Deploy the container image to Cloud Run. This command will create a new service and deploy the image to it.
-
-    ```bash
-    gcloud run deploy elevatecv --image us-central1-docker.pkg.dev/[YOUR_PROJECT_ID]/elevatecv-repo/elevatecv --platform managed --region us-central1 --allow-unauthenticated
-    ```
-
-    *   `--platform managed`: Specifies the fully managed version of Cloud Run.
-    *   `--region us-central1`: Specifies the region where the service will be deployed.
-    *   `--allow-unauthenticated`: Allows public access to the service.
-
-5.  **Set Environment Variables:**
-
-    You need to set the `GOOGLE_API_KEY` and `SECRET_KEY` environment variables in your Cloud Run service.
-
-    ```bash
-    gcloud run services update elevatecv --update-env-vars=GOOGLE_API_KEY=[YOUR_GOOGLE_API_KEY],SECRET_KEY=[YOUR_SECRET_KEY] --region=us-central1
-    ```
-
-    *   Replace `[YOUR_GOOGLE_API_KEY]` with your actual Google AI API key.
-    *   Replace `[YOUR_SECRET_KEY]` with a strong, randomly generated secret key.
+    Push your changes to the `main` branch of your GitHub repository. This will trigger the GitHub Actions workflow and deploy your application to Google Cloud Run.
 
 ## Accessing the Application
 
-Once the deployment is complete, you will see a URL for your service in the output. You can use this URL to access your application.
-
-## Continuous Deployment (Optional)
-
-You can set up a Cloud Build trigger to automatically build and deploy your application whenever you push changes to your Git repository. See the [Cloud Build documentation](https://cloud.google.com/build/docs/automating-builds/create-trigger) for more information.
+Once the deployment is complete, you can find the URL for your service in the output of the GitHub Actions workflow. You can also find it in the [Google Cloud Console](https://console.cloud.google.com/run).
