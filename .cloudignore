@@ -1,0 +1,38 @@
+# This file specifies files that should be ignored by gcloud builds.
+# See https://cloud.google.com/sdk/gcloud/reference/topic/gcloudignore
+# for more information.
+
+# Git version control directory
+.git/
+.gitignore
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment files
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE and editor directories
+.idea/
+.vscode/
+
+# SQLite database file
+*.db
+*.sqlite3
+
+# Deployment artifacts
+Dockerfile
+.dockerignore
+.cloudignore
+
+# Documentation
+README.md
+DEPLOYMENT.md
+LICENSE
