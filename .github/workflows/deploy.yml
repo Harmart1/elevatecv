@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build, Push, and Deploy
 
 on:
   push:
@@ -26,3 +26,15 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
+
+  deploy:
+    name: Deploy to Self-Hosted Runner
+    runs-on: self-hosted
+    needs: build-and-push
+    steps:
+      - name: Pull and run Docker image
+        run: |
+          docker pull ghcr.io/${{ github.repository }}:latest
+          docker stop my-app || true
+          docker rm my-app || true
+          docker run -d --name my-app -p 5000:5000 ghcr.io/${{ github.repository }}:latest
