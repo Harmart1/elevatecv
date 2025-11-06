@@ -1,11 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
+
 /* Base styles - can be expanded */
 :root {
-    --primary-color: #4F46E5;
-    --secondary-color: #10B981;
-    --text-color: #374151;
-    --bg-color: #F9FAFB;
+    --primary-color: #6D28D9;
+    --secondary-color: #DB2777;
+    --text-color: #1F2937;
+    --bg-color: #F3F4F6;
     --card-bg: #FFFFFF;
-    --border-color: #E5E7EB;
+    --border-color: #D1D5DB;
 }
 
 body {
@@ -14,12 +16,17 @@ body {
     background-color: var(--bg-color);
 }
 
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+
 /* Custom component styles */
 .navbar {
     background-color: var(--card-bg);
     color: var(--text-color);
     padding: 1rem 2rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     border-bottom: 1px solid var(--border-color);
 }
 .navbar-container {
@@ -108,11 +115,13 @@ body {
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 .btn-primary {
-    background-color: var(--primary-color);
+    background-image: linear-gradient(to right, var(--primary-color), #8B5CF6);
     color: white;
+    border: none;
 }
 .btn-primary:hover {
-    background-color: #4338CA;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 .btn-outline {
     background-color: transparent;
@@ -124,11 +133,13 @@ body {
     color: white;
 }
 .btn-secondary {
-    background-color: var(--secondary-color);
+    background-image: linear-gradient(to right, var(--secondary-color), #F472B6);
     color: white;
+    border: none;
 }
 .btn-secondary:hover {
-    background-color: #059669;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 
 .feature-item {
@@ -136,7 +147,7 @@ body {
     padding: 2rem;
     background-color: var(--card-bg);
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border-color);
 }
 .feature-icon-pro {
